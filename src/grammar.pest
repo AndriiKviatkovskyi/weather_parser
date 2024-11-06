@@ -1,0 +1,38 @@
+integer = @{ "-"? ~ ASCII_DIGIT+ }
+float = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+time = @{ ASCII_DIGIT{2} ~ ":" ~ ASCII_DIGIT{2} }
+
+condition = _{ "Condition:" ~ " "? ~ condition_type }
+condition_type = _{
+    "Clear" | "Partly Cloudy" | "Cloudy" | "Overcast" | "Fog" | "Thunderstorm" | "Rain" | "Drizzle" | "Snow" | "Sleet"
+}
+
+temperature = _{ "Temperature:" ~ " "? ~ (float | integer) ~ "C" }
+
+humidity = _{ "Humidity:" ~ " "? ~ (float | integer) ~ "%" }
+
+wind_direction = _{ "Wind direction:" ~ " "? ~ direction }
+direction = _{ "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW" }
+
+wind_speed = _{ "Wind speed:" ~ " "? ~ (float | integer) ~ "km/h" }
+
+precipitation = _{ "Precipitation type:" ~ " "? ~ precipitation_type }
+precipitation_type = _{ "Rain" | "Snow" | "Sleet" | "Hail" }
+
+precipitation_size = _{ "Precipitation size:" ~ " "? ~ (float | integer) ~ "mm" }
+
+visibility = _{ "Visibility:" ~ " "? ~ (float | integer) ~ "km" }
+
+cloud_cover = _{ "Cloud Cover:" ~ " "? ~(float | integer) ~ "%" }
+
+pressure = _{ "Pressure:" ~ " "? ~ integer ~ "hPa" }
+
+uv_index = _{ "UV Index:" ~ " "? ~ integer }
+
+air_quality = _{ "Air Quality:" ~ " "? ~ air_quality_level }
+air_quality_level = _{
+    "Good" | "Moderate" | "Unhealthy for Sensitive Groups" | "Unhealthy" | "Very Unhealthy" | "Hazardous"
+}
+
+sunrise = _{ "Sunrise:" ~ " "? ~ time }
+sunset = _{ "Sunset:" ~ " "? ~ time }
