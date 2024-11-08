@@ -29,6 +29,8 @@ pub fn parse_input(input: &str) -> Result<HashMap<String, serde_json::Value>, St
                 Rule::cloud_types,
             ];
 
+            // Cycle is used for matching instead of grammar to easen the process of adding new records to HashMap
+
             for (i, string) in strings.iter().enumerate() {
                 if i < rules.len() {
                     if let Ok(mut parsed) = WeatherParser::parse(rules[i], string) {
