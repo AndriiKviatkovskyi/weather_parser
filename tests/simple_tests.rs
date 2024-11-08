@@ -1,6 +1,5 @@
 use pest::Parser;
 use pest_derive::Parser;
-use anyhow::anyhow;
 
 #[derive(Parser)]
 #[grammar = "./grammar.pest"]
@@ -9,7 +8,66 @@ pub struct WeatherParser;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use pest::Parser;
+
+    #[test]
+    fn test_integer_positive() {
+        let input = "30";
+        assert!(WeatherParser::parse(Rule::integer, input).is_ok());
+    }
+
+    #[test]
+    fn test_integer_negative() {
+        let input = "a";
+        assert!(WeatherParser::parse(Rule::integer, input).is_err());
+    }
+
+    #[test]
+    fn test_float_positive() {
+        let input = "30.5";
+        assert!(WeatherParser::parse(Rule::float, input).is_ok());
+    }
+
+    #[test]
+    fn test_float_negative() {
+        let input = "a.b";
+        assert!(WeatherParser::parse(Rule::float, input).is_err());
+    }
+
+    #[test]
+    fn test_time_positive() {
+        let input = "22:22";
+        assert!(WeatherParser::parse(Rule::time, input).is_ok());
+    }
+
+    #[test]
+    fn test_time_negative() {
+        let input = "aa:bb";
+        assert!(WeatherParser::parse(Rule::time, input).is_err());
+    }
+
+    #[test]
+    fn test_string_positive() {
+        let input = "gugugaga";
+        assert!(WeatherParser::parse(Rule::string, input).is_ok());
+    }
+
+    #[test]
+    fn test_string_negative() {
+        let input = ";";
+        assert!(WeatherParser::parse(Rule::string, input).is_err());
+    }
+
+    #[test]
+    fn test_string_collection_positive() {
+        let input = "gugugaga; biba";
+        assert!(WeatherParser::parse(Rule::string_collection, input).is_ok());
+    }
+
+    #[test]
+    fn test_string_collection_negative() {
+        let input = ";;;";
+        assert!(WeatherParser::parse(Rule::string_collection, input).is_err());
+    }
 
     #[test]
     fn test_condition_positive() {
@@ -19,9 +77,22 @@ mod tests {
 
     #[test]
     fn test_condition_negative() {
-        let input = "Condition: Weird";
+        let input = "Cond: Clear";
         assert!(WeatherParser::parse(Rule::condition, input).is_err());
     }
+
+    #[test]
+    fn test_condition_type_positive() {
+        let input = "Clear";
+        assert!(WeatherParser::parse(Rule::condition_type, input).is_ok());
+    }
+
+    #[test]
+    fn test_condition_type_negative() {
+        let input = "Weird";
+        assert!(WeatherParser::parse(Rule::condition_type, input).is_err());
+    }
+
 
     #[test]
     fn test_temperature_positive() {
@@ -48,51 +119,51 @@ mod tests {
     }
 
     #[test]
+    fn test_wind_positive() {
+        let input = "Wind: NE 15km/h";
+        assert!(WeatherParser::parse(Rule::wind, input).is_ok());
+    }
+
+    #[test]
+    fn test_wind_negative() {
+        let input = "Wind: 15km/h NE";
+        assert!(WeatherParser::parse(Rule::wind, input).is_err());
+    }
+
+    #[test]
     fn test_wind_direction_positive() {
-        let input = "Wind direction: NE";
-        assert!(WeatherParser::parse(Rule::wind_direction, input).is_ok());
+        let input = "NE";
+        assert!(WeatherParser::parse(Rule::direction, input).is_ok());
     }
 
     #[test]
     fn test_wind_direction_negative() {
-        let input = "Wind direction: 5";
-        assert!(WeatherParser::parse(Rule::wind_direction, input).is_err());
-    }
-
-    #[test]
-    fn test_wind_speed_positive() {
-        let input = "Wind speed: 12km/h";
-        assert!(WeatherParser::parse(Rule::wind_speed, input).is_ok());
-    }
-
-    #[test]
-    fn test_wind_speed_negative() {
-        let input = "Wind speed: 12 mph";
-        assert!(WeatherParser::parse(Rule::wind_speed, input).is_err());
+        let input = "east";
+        assert!(WeatherParser::parse(Rule::direction, input).is_err());
     }
 
     #[test]
     fn test_precipitation_positive() {
-        let input = "Precipitation type: Rain";
+        let input = "Precipitation: Rain 5mm";
         assert!(WeatherParser::parse(Rule::precipitation, input).is_ok());
     }
 
     #[test]
     fn test_precipitation_negative() {
-        let input = "Precipitation type: Frogs";
+        let input = "Precipitation: Rain 5cm";
         assert!(WeatherParser::parse(Rule::precipitation, input).is_err());
     }
 
     #[test]
-    fn test_precipitation_size_positive() {
-        let input = "Precipitation size: 5.5mm";
-        assert!(WeatherParser::parse(Rule::precipitation_size, input).is_ok());
+    fn test_precipitation_type_positive() {
+        let input = "Rain";
+        assert!(WeatherParser::parse(Rule::precipitation_type, input).is_ok());
     }
 
     #[test]
-    fn test_precipitation_size_negative() {
-        let input = "Precipitation size: 5m";
-        assert!(WeatherParser::parse(Rule::precipitation_size, input).is_err());
+    fn test_precipitation_type_negative() {
+        let input = "Cold november rain";
+        assert!(WeatherParser::parse(Rule::precipitation_type, input).is_err());
     }
 
     #[test]
@@ -117,6 +188,30 @@ mod tests {
     fn test_cloud_cover_negative() {
         let input = "Cloud Cover: 75";
         assert!(WeatherParser::parse(Rule::cloud_cover, input).is_err());
+    }
+
+    #[test]
+    fn test_cloud_types_positive() {
+        let input = "Cloud Types: Cirrus, Stratus";
+        assert!(WeatherParser::parse(Rule::cloud_types, input).is_ok());
+    }
+
+    #[test]
+    fn test_cloud_types_negative() {
+        let input = "Cloud Types: Nice Pretty";
+        assert!(WeatherParser::parse(Rule::cloud_types, input).is_err());
+    }
+
+    #[test]
+    fn test_cloud_type_positive() {
+        let input = "Stratus";
+        assert!(WeatherParser::parse(Rule::cloud_type, input).is_ok());
+    }
+
+    #[test]
+    fn test_cloud_type_negative() {
+        let input = "Straus";
+        assert!(WeatherParser::parse(Rule::cloud_type, input).is_err());
     }
 
     #[test]
@@ -154,6 +249,19 @@ mod tests {
         let input = "Air Quality: Excellent";
         assert!(WeatherParser::parse(Rule::air_quality, input).is_err());
     }
+
+    #[test]
+    fn test_air_quality_level_positive() {
+        let input = "Good";
+        assert!(WeatherParser::parse(Rule::air_quality_level, input).is_ok());
+    }
+
+    #[test]
+    fn test_air_quality_level_negative() {
+        let input = "null";
+        assert!(WeatherParser::parse(Rule::air_quality_level, input).is_err());
+    }
+
 
     #[test]
     fn test_sunrise_positive() {

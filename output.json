@@ -1,0 +1,25 @@
+{
+  "Air Quality": "Moderate",
+  "Cloud Cover": "75",
+  "Cloud Types": [
+    "Stratus",
+    "Cirrus",
+    "Altocumulus"
+  ],
+  "Condition": "Partly Cloudy",
+  "Humidity": "60",
+  "Precipitation": {
+    "Amount": "1.2",
+    "Type": "Rain"
+  },
+  "Pressure": "1013",
+  "Sunrise": "06:30",
+  "Sunset": "19:45",
+  "Temperature": "23.5",
+  "UV Index": "3",
+  "Visibility": "10",
+  "Wind": {
+    "Direction": "NE",
+    "Speed": "15"
+  }
+}
