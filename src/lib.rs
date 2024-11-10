@@ -46,7 +46,7 @@ pub fn parse_input(input: &str) -> Result<HashMap<String, serde_json::Value>, We
             for (i, string) in strings.iter().enumerate() {
                 if i < rules.len() {
                     WeatherParser::parse(rules[i], string)
-                        .map_err(|e| WeatherParserError::ParsingError(e))?
+                        .map_err(WeatherParserError::ParsingError)?
                         .next()
                         .map(|record| match rules[i] {
                             Rule::wind => {
