@@ -1,4 +1,4 @@
-### Weather Conditions Parser
+### weather_parser
 
 ### Description
 This project implements a parser that extracts and formats detailed weather condition data from structured text inputs. It can parse various weather parameters and format them into JSON.
