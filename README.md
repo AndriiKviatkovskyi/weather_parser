@@ -1,9 +1,9 @@
-## weather_parser
+# weather_parser
 
-### Description
+## Description
 This project implements a parser that extracts and formats detailed weather condition data from structured text inputs. It can parse various weather parameters and format them into JSON.
 
-### Technical description
+## Technical description
 The parser reads structured text inputs containing weather conditions, applies grammar rules and outputs the parsed results as structured data. It takes a string, which consists of following parts:
 
 - **Condition**: Parses descriptive weather states like "Clear," "Partly Cloudy," "Thunderstorm," and more.
@@ -21,7 +21,7 @@ The parser reads structured text inputs containing weather conditions, applies g
 
 After that, it splits it by ';' symbol using special grammar rule and analyzes, whether each part matches required grammar rule. With every match it is putting new object to HashMap, which is later transfered to JSON using serde_json and gets written into file, chosen by user in CLI.
 
-### Applying
+## Applying
 The parser allows user to convert intuitively understandable weather conditions to JSON format, required by many applications, which can save a lot of time and effort. It can be used for various applications, including:
 
 - Sharing weather data.

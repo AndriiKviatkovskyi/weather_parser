@@ -1,18 +1,32 @@
+use pest::error::Error as PestError;
 use pest::Parser;
 use pest_derive::Parser;
 use serde_json::json;
 use std::collections::HashMap;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum WeatherParserError {
+    #[error("Parsing error: {0}")]
+    ParsingError(#[from] PestError<Rule>),
+
+    #[error("Invalid input format: {0}")]
+    InvalidInput(String),
+}
 
 #[derive(Parser)]
 #[grammar = "./grammar.pest"]
 pub struct WeatherParser;
 
-pub fn parse_input(input: &str) -> Result<HashMap<String, serde_json::Value>, String> {
+pub fn parse_input(input: &str) -> Result<HashMap<String, serde_json::Value>, WeatherParserError> {
     let mut weather_data = HashMap::new();
 
     if let Ok(mut parsed) = WeatherParser::parse(Rule::string_collection, input) {
         if let Some(collection) = parsed.next() {
-            let strings: Vec<_> = collection.into_inner().map(|pair| pair.as_str().trim()).collect();
+            let strings: Vec<_> = collection
+                .into_inner()
+                .map(|pair| pair.as_str().trim())
+                .collect();
             let rules = [
                 Rule::condition,
                 Rule::temperature,
@@ -29,80 +43,88 @@ pub fn parse_input(input: &str) -> Result<HashMap<String, serde_json::Value>, St
                 Rule::cloud_types,
             ];
 
-            // Cycle is used for matching instead of grammar to easen the process of adding new records to HashMap
-
             for (i, string) in strings.iter().enumerate() {
                 if i < rules.len() {
-                    if let Ok(mut parsed) = WeatherParser::parse(rules[i], string) {
-                        if let Some(record) = parsed.next() {
-                            match rules[i] {
-                                Rule::wind => {
-                                    let mut wind_data = HashMap::new();
-                                    for inner in record.into_inner() {
-                                        match inner.as_rule() {
-                                            Rule::direction => {
-                                                wind_data.insert("Direction", inner.as_str().trim().to_string());
-                                            }
-                                            Rule::float | Rule::integer => {
-                                                wind_data.insert("Speed", inner.as_str().trim().to_string());
-                                            }
-                                            _ => {}
+                    WeatherParser::parse(rules[i], string)
+                        .map_err(|e| WeatherParserError::ParsingError(e))?
+                        .next()
+                        .map(|record| match rules[i] {
+                            Rule::wind => {
+                                let mut wind_data = HashMap::new();
+                                for inner in record.into_inner() {
+                                    match inner.as_rule() {
+                                        Rule::direction => {
+                                            wind_data.insert(
+                                                "Direction",
+                                                inner.as_str().trim().to_string(),
+                                            );
                                         }
-                                    }
-                                    weather_data.insert("Wind".to_string(), json!(wind_data));
-                                }
-                                Rule::precipitation => {
-                                    let mut precipitation_data = HashMap::new();
-                                    for inner in record.into_inner() {
-                                        match inner.as_rule() {
-                                            Rule::precipitation_type => {
-                                                precipitation_data.insert("Type", inner.as_str().trim().to_string());
-                                            }
-                                            Rule::float | Rule::integer => {
-                                                precipitation_data.insert("Amount", inner.as_str().trim().to_string());
-                                            }
-                                            _ => {}
+                                        Rule::float | Rule::integer => {
+                                            wind_data
+                                                .insert("Speed", inner.as_str().trim().to_string());
                                         }
+                                        _ => {}
                                     }
-                                    weather_data.insert("Precipitation".to_string(), json!(precipitation_data));
                                 }
-                                Rule::cloud_types => {
-                                    let cloud_types: Vec<String> = record.into_inner()
-                                        .map(|inner| inner.as_str().trim().to_string())
-                                        .collect();
-                                    weather_data.insert("Cloud Types".to_string(), json!(cloud_types));
-                                }
-                                _ => {
-                                    let key = match rules[i] {
-                                        Rule::condition => "Condition",
-                                        Rule::temperature => "Temperature",
-                                        Rule::humidity => "Humidity",
-                                        Rule::visibility => "Visibility",
-                                        Rule::cloud_cover => "Cloud Cover",
-                                        Rule::pressure => "Pressure",
-                                        Rule::uv_index => "UV Index",
-                                        Rule::air_quality => "Air Quality",
-                                        Rule::sunrise => "Sunrise",
-                                        Rule::sunset => "Sunset",
-                                        Rule::cloud_types => "Cloud Types",
-                                        _ => "Unknown",
-                                    };
-                                    weather_data.insert(key.to_string(), json!(record.as_str().trim().to_string()));
-                                }
+                                weather_data.insert("Wind".to_string(), json!(wind_data));
                             }
-                        } else {
-                            return Err(format!("String '{}' did not match rule {:?} (Rule: {:?})", string, rules[i], rules[i]));
-                        }
-                    } else {
-                        return Err(format!("String '{}' did not match rule {:?} (Rule: {:?})", string, rules[i], rules[i]));
-                    }
+                            Rule::precipitation => {
+                                let mut precipitation_data = HashMap::new();
+                                for inner in record.into_inner() {
+                                    match inner.as_rule() {
+                                        Rule::precipitation_type => {
+                                            precipitation_data
+                                                .insert("Type", inner.as_str().trim().to_string());
+                                        }
+                                        Rule::float | Rule::integer => {
+                                            precipitation_data.insert(
+                                                "Amount",
+                                                inner.as_str().trim().to_string(),
+                                            );
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                                weather_data
+                                    .insert("Precipitation".to_string(), json!(precipitation_data));
+                            }
+                            Rule::cloud_types => {
+                                let cloud_types: Vec<String> = record
+                                    .into_inner()
+                                    .map(|inner| inner.as_str().trim().to_string())
+                                    .collect();
+                                weather_data.insert("Cloud Types".to_string(), json!(cloud_types));
+                            }
+                            _ => {
+                                let key = match rules[i] {
+                                    Rule::condition => "Condition",
+                                    Rule::temperature => "Temperature",
+                                    Rule::humidity => "Humidity",
+                                    Rule::visibility => "Visibility",
+                                    Rule::cloud_cover => "Cloud Cover",
+                                    Rule::pressure => "Pressure",
+                                    Rule::uv_index => "UV Index",
+                                    Rule::air_quality => "Air Quality",
+                                    Rule::sunrise => "Sunrise",
+                                    Rule::sunset => "Sunset",
+                                    Rule::cloud_types => "Cloud Types",
+                                    _ => "Unknown",
+                                };
+                                weather_data.insert(
+                                    key.to_string(),
+                                    json!(record.as_str().trim().to_string()),
+                                );
+                            }
+                        });
                 }
             }
         }
     }
 
     if weather_data.is_empty() {
-        Err("No matching rule found".to_string())
+        Err(WeatherParserError::InvalidInput(
+            "No matching rule found".to_string(),
+        ))
     } else {
         Ok(weather_data)
     }

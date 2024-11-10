@@ -1,17 +1,20 @@
-use weather_parser::parse_input;
+use anyhow::Result;
 use serde_json::json;
-use std::fs::File;
-use std::io::{self, Read, Write};
 use std::env;
+use std::fs::File;
+use std::io::{Read, Write};
+use weather_parser::parse_input;
 
-fn main() -> io::Result<()> {
+fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
         println!("Usage: run code using specific arguments\n");
         println!("cargo run <command> [options]\n");
         println!("Commands:");
-        println!("  parse <input_file> <output_file>  -Parse the input file and save to output file");
+        println!(
+            "  parse <input_file> <output_file>  -Parse the input file and save to output file"
+        );
         println!("  help                              -Show help information");
         println!("  credits                           -Show credits");
         return Ok(());
@@ -47,7 +50,9 @@ fn main() -> io::Result<()> {
             println!("Usage: run code using specific arguments\n");
             println!("cargo run <command> [options]\n");
             println!("Commands:");
-            println!("  parse <input_file> <output_file>  -Parse the input file and save to output file");
+            println!(
+                "  parse <input_file> <output_file>  -Parse the input file and save to output file"
+            );
             println!("  help                              -Show help information");
             println!("  credits                           -Show credits");
             println!("\nAdditional explanations:\n");
@@ -69,6 +74,3 @@ fn main() -> io::Result<()> {
     }
     Ok(())
 }
-
-
-
