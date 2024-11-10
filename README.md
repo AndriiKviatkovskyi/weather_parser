@@ -19,6 +19,8 @@ The parser reads structured text inputs containing weather conditions, applies g
 - **Sunrise and Sunset**: Parses sunrise and sunset times in HH:MM format (e.g., "Sunrise: 06:15").
 - **Cloud types**: Parses cloud types (e.g., "Cloud Types: Cirrus, Stratus").
 
+![Weather Parsing Diagram](diagram.png)
+
 After that, it splits it by ';' symbol using special grammar rule and analyzes, whether each part matches required grammar rule. With every match it is putting new object to HashMap, which is later transfered to JSON using serde_json and gets written into file, chosen by user in CLI.
 
 ## Applying

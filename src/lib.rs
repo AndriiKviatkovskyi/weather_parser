@@ -8,7 +8,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum WeatherParserError {
     #[error("Parsing error: {0}")]
-    ParsingError(#[from] PestError<Rule>),
+    ParsingError(#[from] Box<PestError<Rule>>),
 
     #[error("Invalid input format: {0}")]
     InvalidInput(String),
@@ -45,10 +45,11 @@ pub fn parse_input(input: &str) -> Result<HashMap<String, serde_json::Value>, We
 
             for (i, string) in strings.iter().enumerate() {
                 if i < rules.len() {
-                    WeatherParser::parse(rules[i], string)
-                        .map_err(WeatherParserError::ParsingError)?
+                    if let Some(record) = WeatherParser::parse(rules[i], string)
+                        .map_err(|e| WeatherParserError::ParsingError(Box::new(e)))?
                         .next()
-                        .map(|record| match rules[i] {
+                    {
+                        match rules[i] {
                             Rule::wind => {
                                 let mut wind_data = HashMap::new();
                                 for inner in record.into_inner() {
@@ -115,7 +116,8 @@ pub fn parse_input(input: &str) -> Result<HashMap<String, serde_json::Value>, We
                                     json!(record.as_str().trim().to_string()),
                                 );
                             }
-                        });
+                        }
+                    }
                 }
             }
         }

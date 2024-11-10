@@ -2,8 +2,11 @@
 name = "weather_parser"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"  
 authors = ["Andrii Kviatkovskyi"]
 description = "A parser for extracting data about weather"
+repository = "https://github.com/AndriiKviatkovskyi/weather_parser"
+documentation = "https://docs.rs/weather_parser"
 readme = "README.md"
 
 [dependencies]

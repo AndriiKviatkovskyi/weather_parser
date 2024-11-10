@@ -1,40 +1,74 @@
-integer = @{ "-"? ~ ASCII_DIGIT+}
+//! Grammar rules
+
+/// Matches an integer, optionally with a negative sign, followed by one or more digits.
+integer = @{ "-"? ~ ASCII_DIGIT+ }
+
+/// Matches a floating-point number, optionally with a negative sign, followed by one or more digits, a decimal point, and more digits.
 float = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+
+/// Matches time in the format of two digits, followed by a colon, and then two more digits (e.g., 12:34).
 time = @{ ASCII_DIGIT{2} ~ ":" ~ ASCII_DIGIT{2} }
 
+/// Matches any string that does not contain a semicolon.
 string = @{ (!";" ~ ANY)+ }
+
+/// Matches a collection of strings separated by semicolons.
 string_collection = { string ~ (";" ~ string)* }
 
+/// Matches a condition in the format "Condition: " followed by a specific type of weather condition.
 condition = _{ "Condition:" ~ " "? ~ condition_type }
+
+/// Matches various weather conditions such as "Clear," "Partly Cloudy," "Cloudy," and others.
 condition_type = @{
     "Clear" | "Partly Cloudy" | "Cloudy" | "Overcast" | "Fog" | "Thunderstorm" | "Rain" | "Drizzle" | "Snow" | "Sleet"
 }
 
+/// Matches a temperature in the format "Temperature: " followed by a number (integer or float) and the letter 'C'.
 temperature = _{ "Temperature:" ~ " "? ~ (float | integer) ~ "C" }
 
+/// Matches humidity in the format "Humidity: " followed by a number (integer or float) and the percentage symbol.
 humidity = _{ "Humidity:" ~ " "? ~ (float | integer) ~ "%" }
 
+/// Matches wind data in the format "Wind: " followed by a direction and a speed in km/h.
 wind = ${ "Wind:" ~ " "? ~ direction  ~ " "? ~ (float | integer) ~ "km/h" }
+
+/// Matches a cardinal or intercardinal direction (e.g., "NE," "S," "W").
 direction = @{ "NE" | "SE" | "SW" |  "NW" | "E" | "W" | "N" | "S" }
 
-precipitation = ${ "Precipitation:" ~ " "? ~ precipitation_type ~ " "? ~ (float | integer) ~ "mm"}
+/// Matches precipitation data in the format "Precipitation: " followed by the type and the amount in mm.
+precipitation = ${ "Precipitation:" ~ " "? ~ precipitation_type ~ " "? ~ (float | integer) ~ "mm" }
+
+/// Matches the type of precipitation, such as "Rain," "Snow," "Sleet," or "Hail."
 precipitation_type = @{ "Rain" | "Snow" | "Sleet" | "Hail" }
 
+/// Matches visibility in the format "Visibility: " followed by a number (integer or float) and "km".
 visibility = _{ "Visibility:" ~ " "? ~ (float | integer) ~ "km" }
 
+/// Matches cloud cover in the format "Cloud Cover: " followed by a number (integer or float) and the percentage symbol.
 cloud_cover = _{ "Cloud Cover:" ~ " "? ~(float | integer) ~ "%" }
 
+/// Matches cloud types in the format "Cloud Types: " followed by a list of cloud types separated by commas.
 cloud_types = ${ "Cloud Types:" ~ " " ~ cloud_type ~ (", " ~ cloud_type)* }
+
+/// Matches specific cloud types, such as "Cumulus," "Stratus," "Cirrus," etc.
 cloud_type = @{ "Cumulus" | "Stratus" | "Cirrus" | "Cumulonimbus" | "Altostratus" | "Nimbostratus" | "Altocumulus" | "Stratocumulus" }
 
+/// Matches atmospheric pressure in the format "Pressure: " followed by a number (integer) and "hPa".
 pressure = _{ "Pressure:" ~ " "? ~ integer ~ "hPa" }
 
+/// Matches the UV index in the format "UV Index: " followed by an integer.
 uv_index = _{ "UV Index:" ~ " "? ~ integer }
 
+/// Matches air quality in the format "Air Quality: " followed by a specific air quality level.
 air_quality = _{ "Air Quality:" ~ " "? ~ air_quality_level }
+
+/// Matches different levels of air quality, such as "Good," "Moderate," or "Unhealthy."
 air_quality_level = @{
     "Good" | "Moderate" | "Unhealthy for Sensitive Groups" | "Unhealthy" | "Very Unhealthy" | "Hazardous"
 }
 
+/// Matches sunrise time in the format "Sunrise: " followed by a time value (e.g., "06:30").
 sunrise = _{ "Sunrise:" ~ " "? ~ time }
+
+/// Matches sunset time in the format "Sunset: " followed by a time value (e.g., "18:45").
 sunset = _{ "Sunset:" ~ " "? ~ time }
