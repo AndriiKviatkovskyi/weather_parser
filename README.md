@@ -1,5 +1,8 @@
 # weather_parser
 
+- crate: https://crates.io/crates/weather_parser
+- docs: https://docs.rs/weather_parser/0.1.0/weather_parser
+
 ## Description
 This project implements a parser that extracts and formats detailed weather condition data from structured text inputs. It can parse various weather parameters and format them into JSON.
 
